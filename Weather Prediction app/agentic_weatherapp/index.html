@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WeatherMind — An AI-powered agentic weather app with smart insights, forecasts, and a conversational weather assistant.">
+  <title>WeatherMind — Agentic Weather Intelligence</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Favicon (emoji-based) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌤️</text></svg>">
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="app-bg" id="appBg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Alerts Container -->
+  <div class="alerts-container" id="alertsContainer"></div>
+
+  <!-- App Container -->
+  <div class="app-container">
+
+    <!-- ===== Sidebar Navigation ===== -->
+    <nav class="sidebar" role="navigation" aria-label="Main navigation">
+      <div class="sidebar-logo" title="WeatherMind">🌤️</div>
+
+      <div class="sidebar-nav">
+        <button class="nav-btn active" data-view="dashboard" id="nav-dashboard" aria-label="Dashboard">
+          🏠
+          <span class="tooltip">Dashboard</span>
+        </button>
+        <button class="nav-btn" data-view="agent" id="nav-agent" aria-label="AI Agent Chat">
+          🤖
+          <span class="tooltip">AI Agent</span>
+        </button>
+        <button class="nav-btn" data-view="cities" id="nav-cities" aria-label="Saved Cities">
+          🌍
+          <span class="tooltip">My Cities</span>
+        </button>
+      </div>
+
+      <div class="sidebar-bottom">
+        <button class="unit-toggle" id="unitToggle" title="Toggle temperature unit">°C</button>
+      </div>
+    </nav>
+
+    <!-- ===== Main Content ===== -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1>WeatherMind</h1>
+          <p>Your AI-Powered Weather Agent</p>
+        </div>
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-box" id="searchBox" placeholder="Search any city..." autocomplete="off" aria-label="Search city">
+          <button class="geo-btn" id="geoBtn" title="Use my location" aria-label="Use my location">📍</button>
+          <div class="search-suggestions" id="searchSuggestions"></div>
+        </div>
+      </header>
+
+      <!-- ========== DASHBOARD VIEW ========== -->
+      <section class="view-section active" id="view-dashboard">
+
+        <!-- Current Weather + Agent Insight -->
+        <div class="current-weather">
+          <div class="glass-card weather-hero" id="weatherHero">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="glass-card agent-insight" id="agentInsight">
+            <div class="agent-badge">
+              <span class="pulse-dot"></span>
+              WeatherMind Agent
+            </div>
+            <div class="agent-insight-title">Initializing...</div>
+            <div class="agent-insight-text">Loading weather intelligence...</div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid" id="metricsGrid">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- Hourly Forecast -->
+        <div class="glass-card hourly-forecast">
+          <div class="glass-card-header">
+            <span class="glass-card-title">⏰ Hourly Forecast</span>
+          </div>
+          <div class="hourly-scroll" id="hourlyScroll">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+
+        <!-- 7-Day Forecast -->
+        <div class="glass-card daily-forecast" style="margin-top: var(--space-xl)">
+          <div class="glass-card-header">
+            <span class="glass-card-title">📅 7-Day Forecast</span>
+          </div>
+          <div class="daily-list" id="dailyList">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid" style="margin-top: var(--space-xl)">
+          <div class="glass-card chart-container">
+            <div class="glass-card-header">
+              <span class="glass-card-title">🌡️ Temperature (24h)</span>
+            </div>
+            <canvas id="chartHourlyTemp"></canvas>
+          </div>
+          <div class="glass-card chart-container">
+            <div class="glass-card-header">
+              <span class="glass-card-title">🌧️ Precipitation Probability</span>
+            </div>
+            <canvas id="chartPrecip"></canvas>
+          </div>
+          <div class="glass-card chart-container">
+            <div class="glass-card-header">
+              <span class="glass-card-title">📊 7-Day Temperature Range</span>
+            </div>
+            <canvas id="chartDailyTemp"></canvas>
+          </div>
+          <div class="glass-card chart-container">
+            <div class="glass-card-header">
+              <span class="glass-card-title">💨 Wind Speed (24h)</span>
+            </div>
+            <canvas id="chartWind"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========== AI AGENT CHAT VIEW ========== -->
+      <section class="view-section" id="view-agent">
+        <div class="chat-view">
+
+          <div class="chat-header">
+            <h2>Meet <span>WeatherMind</span></h2>
+            <p>Your intelligent weather assistant. Ask anything about the weather!</p>
+          </div>
+
+          <!-- Quick Prompts -->
+          <div class="quick-prompts" id="quickPrompts">
+            <button class="quick-prompt" data-query="Should I carry an umbrella today?">
+              <span class="prompt-icon">☂️</span>
+              Should I carry an umbrella?
+              <span class="prompt-text">Check rain probability</span>
+            </button>
+            <button class="quick-prompt" data-query="What should I wear today?">
+              <span class="prompt-icon">👕</span>
+              What should I wear?
+              <span class="prompt-text">Get outfit recommendations</span>
+            </button>
+            <button class="quick-prompt" data-query="Is it a good day for outdoor activities?">
+              <span class="prompt-icon">🏃</span>
+              Good day to go outside?
+              <span class="prompt-text">Outdoor activity check</span>
+            </button>
+            <button class="quick-prompt" data-query="What's the best day this week for a picnic?">
+              <span class="prompt-icon">📅</span>
+              Best day this week?
+              <span class="prompt-text">Find the perfect day</span>
+            </button>
+            <button class="quick-prompt" data-query="Show me the weekly forecast">
+              <span class="prompt-icon">📊</span>
+              Weekly forecast
+              <span class="prompt-text">7-day weather outlook</span>
+            </button>
+            <button class="quick-prompt" data-query="What's the UV index? Do I need sunscreen?">
+              <span class="prompt-icon">☀️</span>
+              UV & Sun Protection
+              <span class="prompt-text">Sunscreen advice</span>
+            </button>
+          </div>
+
+          <!-- Chat Messages -->
+          <div class="chat-messages" id="chatMessages"></div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Ask WeatherMind anything about the weather..." aria-label="Chat with weather agent">
+            <button class="chat-send-btn" id="chatSendBtn" title="Send message" aria-label="Send message">➤</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========== MULTI-CITY VIEW ========== -->
+      <section class="view-section" id="view-cities">
+        <div class="cities-header">
+          <h2>🌍 My Cities</h2>
+        </div>
+        <div class="cities-grid" id="citiesGrid">
+          <div class="glass-card add-city-card" onclick="App.onAddCityClick()">
+            <div class="add-city-icon">+</div>
+            <div class="add-city-text">Add a city</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/storage.js?v=1.1"></script>
+  <script src="js/weather.js?v=1.1"></script>
+  <script src="js/agent.js?v=1.1"></script>
+  <script src="js/charts.js?v=1.1"></script>
+  <script src="js/app.js?v=1.1"></script>
+
+</body>
+</html>
